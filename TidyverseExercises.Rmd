@@ -17,7 +17,7 @@ library(esquisse)
 library(gridExtra)
 ```
 
-## Problem 1
+# Problem 1
 
 
 ```{r, echo=FALSE}
@@ -25,18 +25,27 @@ library(gapminder)
 data(gapminder)
 ```
 
+How many continents are included?
+
 ```{r, echo=FALSE}
-fct_unique(gapminder$continent)
+length(fct_unique(gapminder$continent))
+```
 
+How many countries are included?
+
+```{r,echo=FALSE}
 length(fct_unique(gapminder$country))
+```
 
-levels(gapminder$continent)
+How many countries per continent?
 
+```{r,echo=FALSE}
 gapminder %>% group_by(continent) %>%
   summarize("Number of Countries" = n_distinct(country))
 ```
 
-## Report for 2007
+## Creating the report. I chose to narrow the report to 2007, and calculating the total population and GDP per capity per continent.
+
 ```{r, echo=FALSE}
 gapminder2007 <- filter(gapminder, year==2007)
 
@@ -46,7 +55,8 @@ kable(gapmindersummary, booktabs=TRUE, digits = 2, col.names = c("Continent", "T
   kable_styling(font_size=18)
 ```
 
-## Comparison Tables: Code to break them down.
+## Table summarizing GDP per capita for countries in each year.
+
 ```{r, echo=FALSE}
 gapminder1952 <- filter(gapminder, year==1952)
 colnames(gapminder1952)[colnames(gapminder1952)=="gdpPercap"] <- "gdp52"
@@ -74,13 +84,10 @@ gapocea <- cbind(gapminder1952ocea[,c("country","continent","gdp52")],gapminder2
 
 ```
 
-##Construct Table
-
 This table will only display the data for two countries from each continent.
 
 The reason for this is that there are only two countries in Oceania. For the neatness and simple display of the table, I will only show two of each.
 
-I could show all 142 countries but I'd prefer not to.
 ```{r, echo=FALSE}
 gaptable <- rbind(gapafri[1:2,],gapamer[1:2,],gapasia[1:2,],gapeuro[1:2,],gapocea[1:2,])
 
@@ -89,11 +96,9 @@ kable(gaptable, digits = 1, booktabs=TRUE, col.names = c("Country","Continent","
 
 ```
 
-## Plots
+## Plots for the above.
 
 To reflect the table, I will only graph two countries per plot.
-
-I attempted to figure out a way to display more countries but I didn't figure out an effective way to present it, because the text size on the x-axis ended up becoming illegible or impossible to interpret.
 
 ```{r,echo=FALSE}
 plot1 <- ggplot(gapminder1952ocea) +
@@ -174,7 +179,7 @@ grid.arrange(plot9,plot0,ncol=2)
 ```
 
 
-## Growth Rate
+## Negative Population Growth
 
 ```{r}
 
@@ -187,7 +192,7 @@ kable(gapdecrease[,c("country","year","growth")], booktabs=TRUE, digits = 2, col
   kable_styling(font_size=18)
 ```
 
-#Highest Growth in GDP
+## Highest Growth in GDP
 
 I will interpret this as the highest growth rate in GDP in a 5 year period.
 
@@ -203,7 +208,10 @@ kable(gapdisplay[1:10,c("country","year","growth")], booktabs=TRUE, digits = 2, 
   kable_styling(font_size=18)
 ```
 
-##2
+# Problem 2
+
+## Gender combinations and age groups
+
 ```{r,echo=FALSE}
 library(AER)
 data("Fertility")
@@ -224,6 +232,7 @@ ggplot(Frequency) +
 
 The above plot shows the frequencies of the combinations. We can also see that there are more individuals having more than one children in their 30s than their 20s, leading to higher frequencies overall. However, there does not seem to be a significant difference in their distributions.
 
+## Correlation with race
 
 ```{r,echo=FALSE}
 Frequency$none <- ifelse(Frequency$afam=="no" & Frequency$hispanic =="no" & Frequency$other=="no", "yes", "no")
@@ -261,7 +270,9 @@ grid.arrange(freq1,freq2,freq3,freq4, ncol=2,nrow=2)
 
 For gender differences, it appears that the "missing" group (which most likely corresponds to white people) frequently has 2 or more kids. Minorities seem to have lower amounts. 
 
-## Problem 3
+# Problem 3
+
+## Letters and names
 
 ```{r,echo=FALSE}
 library(stringr)
@@ -278,6 +289,8 @@ kable(cbind(e,Merc,merc), booktabs=T, col.names = c("Number of e's", "Mercs in m
 ```
 
 These are the values for the number of times "e" appears, the number times "Merc" appears in mtcars, and the number fo times "merc' appears in mpg. 
+
+## Comparison of MPGs
 
 ```{r,echo=FALSE}
 mpgmerc <- mpg[mpg$manufacturer == "mercury",]
@@ -303,7 +316,9 @@ Looking at highways, they fall in the upper rangewith lower values comparable to
 
 Looking at the averages, they fall once again on the lower end, the values being comparable to Merc 450SLC and MErc 450SE.
 
-## Problem 4
+# Problem 4
+
+## Sampling and displaying the most popular names in each year.
 
 ```{r,echo=FALSE}
 library(babynames)
@@ -325,7 +340,7 @@ kable(babypopular, booktabs = TRUE, col.names = names)
 
 ```
 
-#Overlap
+## Overlap between genders
 
 ```{r,echo=FALSE}
 babyM <- babyn %>% filter(sex=="M")
@@ -335,7 +350,7 @@ Fnames <- unique(babyF$name)
 Both <- intersect(Mnames,Fnames)
 ```
 
-
+## Names used in the 19th but not the 21st century
 
 ```{r,echo=FALSE}
 baby19less <- babyn %>% filter(year< 1900)
@@ -344,6 +359,10 @@ baby19more <- babyn %>% filter(year>=1900)
 newnames <- unique(baby19more$name)
 Ancientnames <- setdiff(oldnames,intersect(oldnames,newnames))
 ```
+
+## Frequencies of Donald, Hilary, Hillary, Joe, and Barrack
+
+Barrack does not appear in the table because it does not appear in the sample.
 
 ```{r,echo=FALSE}
 babyrange <- babyn %>% filter(year >= 1800 | year <=2017)
