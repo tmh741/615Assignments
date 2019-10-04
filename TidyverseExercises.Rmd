@@ -1,0 +1,361 @@
+---
+title: "Problem Set"
+author: "Tim Hogan"
+date: "10/1/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(tidyverse)
+library(magrittr)
+library(kableExtra)
+library(esquisse)
+library(gridExtra)
+```
+
+## Problem 1
+
+
+```{r, echo=FALSE}
+library(gapminder)
+data(gapminder)
+```
+
+```{r, echo=FALSE}
+fct_unique(gapminder$continent)
+
+length(fct_unique(gapminder$country))
+
+levels(gapminder$continent)
+
+gapminder %>% group_by(continent) %>%
+  summarize("Number of Countries" = n_distinct(country))
+```
+
+## Report for 2007
+```{r, echo=FALSE}
+gapminder2007 <- filter(gapminder, year==2007)
+
+gapmindersummary <- aggregate(gapminder2007[,c("pop","gdpPercap")], list(gapminder2007$continent), FUN = sum)
+
+kable(gapmindersummary, booktabs=TRUE, digits = 2, col.names = c("Continent", "Total Population", "GDP per Capita"), align = "c") %>%
+  kable_styling(font_size=18)
+```
+
+## Comparison Tables: Code to break them down.
+```{r, echo=FALSE}
+gapminder1952 <- filter(gapminder, year==1952)
+colnames(gapminder1952)[colnames(gapminder1952)=="gdpPercap"] <- "gdp52"
+
+gapminder1952afri <- filter(gapminder1952, continent=="Africa")
+gapminder2007afri <- filter(gapminder2007, continent=="Africa")
+gapafri <- cbind(gapminder1952afri[,c("country","continent","gdp52")],gapminder2007afri[,c("gdpPercap")])
+
+gapminder1952amer <- filter(gapminder1952, continent=="Americas")
+gapminder2007amer <- filter(gapminder2007, continent=="Americas")
+gapamer <- cbind(gapminder1952amer[,c("country","continent","gdp52")],gapminder2007amer[,c("gdpPercap")])
+
+gapminder1952asia <- filter(gapminder1952, continent=="Asia")
+gapminder2007asia <- filter(gapminder2007, continent=="Asia")
+gapasia <- cbind(gapminder1952asia[,c("country","continent","gdp52")],gapminder2007asia[,c("gdpPercap")])
+
+gapminder1952euro <- filter(gapminder1952, continent=="Europe")
+gapminder2007euro <- filter(gapminder2007, continent=="Europe")
+gapeuro <- cbind(gapminder1952euro[,c("country","continent","gdp52")],gapminder2007euro[,c("gdpPercap")])
+
+
+gapminder1952ocea <- filter(gapminder1952, continent=="Oceania")
+gapminder2007ocea <- filter(gapminder2007, continent=="Oceania")
+gapocea <- cbind(gapminder1952ocea[,c("country","continent","gdp52")],gapminder2007ocea[,c("gdpPercap")])
+
+```
+
+##Construct Table
+
+This table will only display the data for two countries from each continent.
+
+The reason for this is that there are only two countries in Oceania. For the neatness and simple display of the table, I will only show two of each.
+
+I could show all 142 countries but I'd prefer not to.
+```{r, echo=FALSE}
+gaptable <- rbind(gapafri[1:2,],gapamer[1:2,],gapasia[1:2,],gapeuro[1:2,],gapocea[1:2,])
+
+kable(gaptable, digits = 1, booktabs=TRUE, col.names = c("Country","Continent","1952 GDP","2007 GDP"))  %>%
+  kable_styling(font_size=18)
+
+```
+
+## Plots
+
+To reflect the table, I will only graph two countries per plot.
+
+I attempted to figure out a way to display more countries but I didn't figure out an effective way to present it, because the text size on the x-axis ended up becoming illegible or impossible to interpret.
+
+```{r,echo=FALSE}
+plot1 <- ggplot(gapminder1952ocea) +
+ aes(x = country, weight = gdp52) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Oceania GDP", subtitle = "1952") +
+ theme_minimal()
+
+plot2 <- ggplot(gapminder2007ocea) +
+ aes(x = country, weight = gdpPercap) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Oceania GDP", subtitle = "2007") +
+ theme_minimal()
+
+grid.arrange(plot1,plot2,ncol=2)
+```
+
+```{r,echo=FALSE}
+plot3 <- ggplot(gapminder1952euro[1:2,]) +
+ aes(x = country, weight = gdp52) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Europe GDP", subtitle = "1952") +
+ theme_minimal()
+
+plot4 <- ggplot(gapminder2007euro[1:2,]) +
+ aes(x = country, weight = gdpPercap) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Europe GDP", subtitle = "2007") +
+ theme_minimal()
+
+grid.arrange(plot3,plot4,ncol=2)
+```
+
+```{r,echo=FALSE}
+plot5 <- ggplot(gapminder1952asia[1:2,]) +
+ aes(x = country, weight = gdp52) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Asia GDP", subtitle = "1952") +
+ theme_minimal()
+
+plot6 <- ggplot(gapminder2007asia[1:2,]) +
+ aes(x = country, weight = gdpPercap) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Asia GDP", subtitle = "2007") +
+ theme_minimal()
+
+grid.arrange(plot5,plot6,ncol=2)
+```
+```{r,echo=FALSE}
+plot7 <- ggplot(gapminder1952amer[1:2,]) +
+ aes(x = country, weight = gdp52) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "America GDP", subtitle = "1952") +
+ theme_minimal()
+
+plot8 <- ggplot(gapminder2007amer[1:2,]) +
+ aes(x = country, weight = gdpPercap) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "America GDP", subtitle = "2007") +
+ theme_minimal()
+
+grid.arrange(plot7,plot8,ncol=2)
+```
+```{r,echo=FALSE}
+plot9 <- ggplot(gapminder1952afri[1:2,]) +
+ aes(x = country, weight = gdp52) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Africa GDP", subtitle = "1952") +
+ theme_minimal()
+
+plot0 <- ggplot(gapminder2007afri[1:2,]) +
+ aes(x = country, weight = gdpPercap) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Country", y = "GDP per Capita", title = "Africa GDP", subtitle = "2007") +
+ theme_minimal()
+
+grid.arrange(plot9,plot0,ncol=2)
+```
+
+
+## Growth Rate
+
+```{r}
+
+gaptest <- gapminder %>% group_by(country) %>% 
+  mutate(growth = pop - lag(pop, default=0))
+
+gapdecrease <- gaptest %>% filter(growth <0)
+
+kable(gapdecrease[,c("country","year","growth")], booktabs=TRUE, digits = 2, col.names = c("Country", "Year", "Difference"), align = "c") %>%
+  kable_styling(font_size=18)
+```
+
+#Highest Growth in GDP
+
+I will interpret this as the highest growth rate in GDP in a 5 year period.
+
+```{r, echo=FALSE}
+
+gapmax <- gapminder %>% group_by(country) %>% 
+  mutate(growth = gdpPercap - lag(gdpPercap, default=0)) %>%
+  arrange(-growth)
+
+gapdisplay <- gapmax %>% filter(year != 1952)
+  
+kable(gapdisplay[1:10,c("country","year","growth")], booktabs=TRUE, digits = 2, col.names = c("Country", "End of 5 year period", "Change in GDP"), align = "c") %>%
+  kable_styling(font_size=18)
+```
+
+##2
+```{r,echo=FALSE}
+library(AER)
+data("Fertility")
+
+Fertility <- as_tibble(Fertility)
+
+Frequency <- Fertility %>% unite("combination", c("gender1","gender2"), sep=":")
+
+Frequency %<>% mutate(group = ifelse(age >= 30, "30s", "20s"))
+
+ggplot(Frequency) +
+ aes(x = combination, fill = group) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "Gender Combination (Ordered)", y = "Frequency)", title = "Frequency of Gender Combinatinons of Children", fill = "Age Group") +
+ theme_minimal()
+```
+
+The above plot shows the frequencies of the combinations. We can also see that there are more individuals having more than one children in their 30s than their 20s, leading to higher frequencies overall. However, there does not seem to be a significant difference in their distributions.
+
+
+```{r,echo=FALSE}
+Frequency$none <- ifelse(Frequency$afam=="no" & Frequency$hispanic =="no" & Frequency$other=="no", "yes", "no")
+
+freq1 <- ggplot(Frequency) +
+ aes(x = morekids, fill = none) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "2 or more kids?", y = "Count", fill = "Race = Missing") +
+ theme_minimal()
+
+freq2 <- ggplot(Frequency) +
+ aes(x = morekids, fill = afam) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "2 or more kids?", y = "Count", fill = "Race = African American") +
+ theme_minimal()
+
+freq3 <- ggplot(Frequency) +
+ aes(x = morekids, fill = hispanic) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "2 or more kids?", y = "Count", fill = "Race = Hispanic") +
+ theme_minimal()
+
+freq4 <- ggplot(Frequency) +
+ aes(x = morekids, fill = other) +
+ geom_bar() +
+ scale_fill_hue() +
+ labs(x = "2 or more kids?", y = "Count", fill = "Race = Other") +
+ theme_minimal()
+
+grid.arrange(freq1,freq2,freq3,freq4, ncol=2,nrow=2)
+```
+
+For gender differences, it appears that the "missing" group (which most likely corresponds to white people) frequently has 2 or more kids. Minorities seem to have lower amounts. 
+
+## Problem 3
+
+```{r,echo=FALSE}
+library(stringr)
+data(mtcars)
+data(mpg)
+
+e <- sum(str_count(string = rownames(mtcars),pattern="e"))
+Merc <- sum(str_count(string = rownames(mtcars),pattern="Merc"))
+merc <- sum(str_count(string = mpg$manufacturer,pattern="merc"))
+
+
+
+kable(cbind(e,Merc,merc), booktabs=T, col.names = c("Number of e's", "Mercs in mtcars", "mercs in mpg"))
+```
+
+These are the values for the number of times "e" appears, the number times "Merc" appears in mtcars, and the number fo times "merc' appears in mpg. 
+
+```{r,echo=FALSE}
+mpgmerc <- mpg[mpg$manufacturer == "mercury",]
+mpgmerc %<>% mutate (mpg = (cty+hwy)/2)
+mpgmerc <- mpgmerc[,c("model", "cty","hwy","mpg")]
+mtcars$names <- rownames(mtcars)
+mtcarsmerc <- mtcars[mtcars$names == c("Merc 240D","Merc 230","Merc 280", "Merc 280C", "Merc 450SE", "Merc 450SL","Merc 450SLC"),]
+mtcarsmerc <- mtcarsmerc[,c("names","mpg")]
+
+kable(mpgmerc, booktabs=T, col.names = c("Model","City MPG","Highway MPG", "Average MPG"))
+```
+
+```{r,echo=FALSE}
+kable(mtcarsmerc,booktabs=T, col.names = c("Model","MPG"))
+```
+
+Comparing the three numbers, we can make a few assessments:
+in the mtcars table, Merc 450SLC has the lowest mileage.
+
+Looking at mpg, if we compare city milages to mtcars, all values fall below the mpgs in mtcars.
+
+Looking at highways, they fall in the upper rangewith lower values comparable to the Merc450SL and higher values comparable to the Merc 480,
+
+Looking at the averages, they fall once again on the lower end, the values being comparable to Merc 450SLC and MErc 450SE.
+
+## Problem 4
+
+```{r,echo=FALSE}
+library(babynames)
+data(babynames)
+babyn <- as_tibble(babynames)
+
+s <- sample(x=1:1924665,size=500000,replace = FALSE)
+babyn_500 <- babyn %>% slice(s)
+babyn_1880 <- babyn %>% filter(year==1880) %>% arrange(-n)
+babyn_1920 <- babyn %>% filter(year==1920) %>% arrange(-n)
+babyn_1960 <- babyn %>% filter(year==1960) %>% arrange(-n)
+babyn_2000 <- babyn %>% filter(year==2000) %>% arrange(-n)
+
+babypopular <- cbind(babyn_1880[1:5,c("year","name")],babyn_1920[1:5,c("year","name")],babyn_1960[1:5,c("year","name")],babyn_2000[1:5,c("year","name")])
+
+names <- rep(c("Year","Name"),times=4)
+
+kable(babypopular, booktabs = TRUE, col.names = names)
+
+```
+
+#Overlap
+
+```{r,echo=FALSE}
+babyM <- babyn %>% filter(sex=="M")
+Mnames <- unique(babyM$name)
+babyF <- babyn %>% filter(sex=="F")
+Fnames <- unique(babyF$name)
+Both <- intersect(Mnames,Fnames)
+```
+
+
+
+```{r,echo=FALSE}
+baby19less <- babyn %>% filter(year< 1900)
+oldnames <- unique(baby19less$name)
+baby19more <- babyn %>% filter(year>=1900)
+newnames <- unique(baby19more$name)
+Ancientnames <- setdiff(oldnames,intersect(oldnames,newnames))
+```
+
+```{r,echo=FALSE}
+babyrange <- babyn %>% filter(year >= 1800 | year <=2017)
+babyfreq <- aggregate(babyrange[,c("n")], list(babyrange$name),sum)
+
+babyfreq %<>% filter(Group.1 %in% c("Donald","Hilary","Hillary","Joe","Barrack"))
+
+babyfreq$n <- babyfreq$n/1000
+
+ggplot(babyfreq) +
+ aes(x = Group.1, weight = n) +
+ geom_bar(fill = "#0c4c8a") +
+ labs(x = "Name", y = "Frequency (in thousands)", title = "Frequency of Names", subtitle = "From 1880 to 2017") +
+ theme_minimal()
+```
